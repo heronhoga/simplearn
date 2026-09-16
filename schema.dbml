@@ -1,0 +1,113 @@
+// auth
+Table users {
+  id uuid [primary key]
+  email varchar [not null, unique]
+  username varchar [not null, unique]
+  password_hashed varchar
+
+  full_name varchar
+  birth_date date
+
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Table permissions {
+  id uuid [primary key]
+  name varchar
+
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Table roles {
+  id uuid [primary key]
+  name varchar
+
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Table users_roles {
+  id uuid [primary key]
+  user_id uuid [not null]
+  role_id uuid [not null]
+
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Table roles_permissions {
+  id uuid [primary key]
+  role_id uuid [not null]
+  permission_id uuid [not null]
+
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Ref users_roles_user: users_roles.user_id > users.id
+Ref users_roles_role: users_roles.role_id > roles.id
+
+Ref roles_permissions_role : roles_permissions.role_id > roles.id
+Ref roles_permissions_permission : roles_permissions.permission_id > permissions.id
+// auth
+
+// flash card
+Table documents {
+  id uuid [primary key]
+  file_name varchar
+  file_path varchar
+  user_id uuid [not null]
+
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Table questions {
+  id uuid [primary key]
+  question varchar
+  document_id varchar [not null]
+  hint varchar
+
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Table answers {
+  id uuid [primary key]
+  question_id uuid [not null]
+  answer varchar
+  is_correct bool
+  explanation varchar
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Table answers_users {
+  id uuid [primary key]
+
+  user_id uuid [not null]
+  question_id uuid [not null]
+  answer_id uuid [not null]
+
+  created_at timestamp
+}
+
+Ref documents_user: documents.user_id > users.id
+Ref questions_document: questions.document_id > documents.id
+Ref answers_users_user: answers_users.user_id > users.id
+Ref answers_users_user_answer: answers_users.answer_id > answers.id
+Ref answers_users_question: answers_users.question_id > questions.id
+// flash card
+
+
+
