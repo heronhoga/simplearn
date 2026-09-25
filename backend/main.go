@@ -21,6 +21,10 @@ func main() {
 		log.Fatalln(err)
 	}
 
+	// Set Repository
+	// Set Services
+	// Set Layers
+
 	app := fiber.New()
 	if err := app.Listen(":8000"); err != nil {
 		log.Fatal("Error starting simplearn backend service")
