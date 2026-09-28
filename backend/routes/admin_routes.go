@@ -7,4 +7,5 @@ import (
 
 func InitAdminRoutes(app *fiber.App, adminHandler *handlers.AdminHandler) {
 	app.Post("/admin/modules/create", adminHandler.CreateModule)
+	app.Put("/admin/modules/edit", adminHandler.EditModule)
 }

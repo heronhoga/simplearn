@@ -7,7 +7,7 @@ import (
 )
 
 type Document struct {
-	Id        uuid.UUID `json:"id" bson:"id"`
+	Id        string    `json:"id" bson:"id"`
 	FileName  string    `json:"file_name" bson:"file_name"`
 	FilePath  string    `json:"file_path" bson:"file_path"`
 	UserId    uuid.UUID `json:"user_id" bson:"user_id"`

@@ -2,12 +2,10 @@ package entities
 
 import (
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type User struct {
-	Id             uuid.UUID `json:"id" bson:"id"`
+	Id             string    `json:"id" bson:"id"`
 	Email          string    `json:"email" bson:"email"`
 	PasswordHashed string    `json:"password_hashed" bson:"password_hashed"`
 	FullName       string    `json:"full_name" bson:"full_name"`

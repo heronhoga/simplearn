@@ -22,13 +22,22 @@ func NewAdminService(repository *repositories.AdminRepository) *AdminService {
 
 func (s *AdminService) CreateModule(context context.Context, newModule requests.CreateModuleRequest) error {
 	module := &entities.Module{
-		Id:        uuid.New(),
+		Id:        uuid.New().String(),
 		Name:      newModule.Name,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
 
 	err := s.repository.InsertModule(context, module)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *AdminService) EditModule(context context.Context, newModule requests.EditModuleRequest) error {
+	err := s.repository.UpdateModule(context, newModule.Id, newModule.Name)
 	if err != nil {
 		return err
 	}

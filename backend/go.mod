@@ -3,9 +3,11 @@ module github.com/heronhoga/simplearn/backend
 go 1.26.5
 
 require (
+	github.com/go-playground/validator/v10 v10.30.5
 	github.com/gofiber/fiber/v3 v3.5.0
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
+	go.mongodb.org/mongo-driver v1.17.10
 	go.mongodb.org/mongo-driver/v2 v2.9.1
 )
 
@@ -14,7 +16,6 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.15 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-playground/validator/v10 v10.30.5 // indirect
 	github.com/gofiber/schema v1.8.3 // indirect
 	github.com/gofiber/utils/v2 v2.4.1 // indirect
 	github.com/klauspost/compress v1.19.2 // indirect

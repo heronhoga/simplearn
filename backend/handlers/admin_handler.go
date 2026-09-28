@@ -61,3 +61,45 @@ func (h *AdminHandler) CreateModule(c fiber.Ctx) error {
 		"message": "ok",
 	})
 }
+
+func (h *AdminHandler) EditModule(c fiber.Ctx) error {
+	var editModuleRequest requests.EditModuleRequest
+	err := c.Bind().Body(&editModuleRequest)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"message":    "error",
+			"error_type": "server",
+			"error":      "internal server error",
+		})
+	}
+
+	errorTags, errorMessages, errorCode := utils.ValidateAndMapRequest(editModuleRequest)
+	switch errorCode {
+	case 500:
+		return c.Status(500).JSON(fiber.Map{
+			"message":    "error",
+			"error_type": "server",
+			"error":      "internal server error",
+		})
+	case 400:
+		return c.Status(400).JSON(fiber.Map{
+			"message":        "error",
+			"error_type":     "validator",
+			"error_tags":     errorTags,
+			"error_messages": errorMessages,
+		})
+	}
+
+	err = h.service.EditModule(context.Background(), editModuleRequest)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"message":    "error",
+			"error_type": "server",
+			"error":      "internal server error",
+		})
+	}
+
+	return c.Status(200).JSON(fiber.Map{
+		"message": "ok",
+	})
+}
