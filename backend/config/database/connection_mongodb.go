@@ -9,15 +9,12 @@ import (
 
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
-	"go.mongodb.org/mongo-driver/v2/mongo/readpref"
 )
-
-var MongoClient *mongo.Client
 
 func ConnectMongoDB() (*mongo.Client, error) {
 	mongoURI := os.Getenv("MONGODB_URI")
 	if mongoURI == "" {
-		return nil, errors.New("MONGODB_URI is not set")
+		return nil, errors.New("MONGODB_URI environment variable is not set")
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -25,20 +22,18 @@ func ConnectMongoDB() (*mongo.Client, error) {
 
 	clientOptions := options.Client().
 		ApplyURI(mongoURI).
-		SetServerAPIOptions(options.ServerAPI(options.ServerAPIVersion1)).
-		SetConnectTimeout(10 * time.Second)
+		SetServerAPIOptions(options.ServerAPI(options.ServerAPIVersion1))
 
 	client, err := mongo.Connect(clientOptions)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := client.Ping(ctx, readpref.Primary()); err != nil {
+	if err := client.Ping(ctx, nil); err != nil {
 		_ = client.Disconnect(context.Background())
 		return nil, err
 	}
 
-	MongoClient = client
-	log.Println("Connected to MongoDB")
+	log.Println("Successfully connected to MongoDB")
 	return client, nil
 }
