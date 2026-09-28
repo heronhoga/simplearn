@@ -6,5 +6,5 @@ import (
 )
 
 func InitAuthRoutes(app *fiber.App, authHandler *handlers.AuthHandler) {
-	app.Get("/auth/register", authHandler.Register)
+	app.Post("/auth/login", authHandler.Login)
 }
