@@ -1,5 +1,5 @@
 package requests
 
 type CreateModuleRequest struct {
-	Name string `json:"name" validate:"required"`
+	Name string `json:"name" bson:"name" validate:"required"`
 }
