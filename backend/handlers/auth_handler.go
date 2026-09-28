@@ -1,12 +1,10 @@
 package handlers
 
 import (
-	"errors"
-
-	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v3"
 	"github.com/heronhoga/simplearn/backend/requests"
 	"github.com/heronhoga/simplearn/backend/services"
+	"github.com/heronhoga/simplearn/backend/utils"
 )
 
 type AuthHandler struct {
@@ -21,7 +19,6 @@ func NewAuthHandler(service *services.AuthService) *AuthHandler {
 
 func (h *AuthHandler) Login(c fiber.Ctx) error {
 	var loginRequest requests.LoginRequest
-	validate := validator.New(validator.WithRequiredStructEnabled())
 	err := c.Bind().Body(&loginRequest)
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{
@@ -31,41 +28,21 @@ func (h *AuthHandler) Login(c fiber.Ctx) error {
 		})
 	}
 
-	err = validate.Struct(loginRequest)
-	if err != nil {
-		var validationErrors validator.ValidationErrors
-		errorTags := []string{}
-		errorMessages := []string{}
-		if errors.As(err, &validationErrors) {
-
-			for _, fieldErr := range validationErrors {
-				var errorMessage string
-				if fieldErr.Tag() == "required" {
-					errorMessage = fieldErr.Field() + " is required"
-				} else if fieldErr.Tag() == "email" {
-					errorMessage = "invalid email format"
-				} else if fieldErr.Tag() == "min" {
-					errorMessage = fieldErr.Field() + " required at least 8 characters"
-				} else if fieldErr.Tag() == "max" {
-					errorMessage = fieldErr.Field() + " exceeded maximum characters (32)"
-				}
-				errorTags = append(errorTags, fieldErr.Field())
-				errorMessages = append(errorMessages, errorMessage)
-			}
-
-			return c.Status(400).JSON(fiber.Map{
-				"message":       "error",
-				"error_type":    "validator",
-				"error":         errorTags,
-				"error_message": errorMessages,
-			})
-		} else {
-			return c.Status(500).JSON(fiber.Map{
-				"message":    "error",
-				"error_type": "server",
-				"error":      "internal server error",
-			})
-		}
+	errorTags, errorMessages, errorCode := utils.ValidateAndMapRequest(loginRequest)
+	switch errorCode {
+	case 500:
+		return c.Status(500).JSON(fiber.Map{
+			"message":    "error",
+			"error_type": "server",
+			"error":      "internal server error",
+		})
+	case 400:
+		return c.Status(400).JSON(fiber.Map{
+			"message":        "error",
+			"error_type":     "validator",
+			"error_tags":     errorTags,
+			"error_messages": errorMessages,
+		})
 	}
 
 	// hit service layer
