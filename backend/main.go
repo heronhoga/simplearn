@@ -37,17 +37,21 @@ func main() {
 
 	// Set Repository
 	authRepository := repositories.NewAuthRepository(db)
+	adminRepository := repositories.NewAdminRepository(db)
 
 	// Set Services
 	authService := services.NewAuthService(authRepository)
+	adminService := services.NewAdminService(adminRepository)
 
 	// Set Handlers
 	authHandler := handlers.NewAuthHandler(authService)
+	adminHandler := handlers.NewAdminHandler(adminService)
 
 	app := fiber.New()
 
 	// Set Routes
 	routes.InitAuthRoutes(app, authHandler)
+	routes.InitAdminRoutes(app, adminHandler)
 
 	if err := app.Listen(":8000"); err != nil {
 		log.Fatal("Error starting simplearn backend service")

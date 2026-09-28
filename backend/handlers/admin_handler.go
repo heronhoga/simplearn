@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"errors"
 
 	"github.com/go-playground/validator/v10"
@@ -9,20 +10,21 @@ import (
 	"github.com/heronhoga/simplearn/backend/services"
 )
 
-type AuthHandler struct {
-	service *services.AuthService
+type AdminHandler struct {
+	service *services.AdminService
 }
 
-func NewAuthHandler(service *services.AuthService) *AuthHandler {
-	return &AuthHandler{
+func NewAdminHandler(service *services.AdminService) *AdminHandler {
+	return &AdminHandler{
 		service: service,
 	}
 }
 
-func (h *AuthHandler) Login(c fiber.Ctx) error {
-	var loginRequest requests.LoginRequest
+// module
+func (h *AdminHandler) CreateModule(c fiber.Ctx) error {
+	var createModuleRequest requests.CreateModuleRequest
 	validate := validator.New(validator.WithRequiredStructEnabled())
-	err := c.Bind().Body(&loginRequest)
+	err := c.Bind().Body(&createModuleRequest)
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{
 			"message":    "error",
@@ -31,7 +33,7 @@ func (h *AuthHandler) Login(c fiber.Ctx) error {
 		})
 	}
 
-	err = validate.Struct(loginRequest)
+	err = validate.Struct(createModuleRequest)
 	if err != nil {
 		var validationErrors validator.ValidationErrors
 		errorTags := []string{}
@@ -42,12 +44,6 @@ func (h *AuthHandler) Login(c fiber.Ctx) error {
 				var errorMessage string
 				if fieldErr.Tag() == "required" {
 					errorMessage = fieldErr.Field() + " is required"
-				} else if fieldErr.Tag() == "email" {
-					errorMessage = "invalid email format"
-				} else if fieldErr.Tag() == "min" {
-					errorMessage = fieldErr.Field() + " required at least 8 characters"
-				} else if fieldErr.Tag() == "max" {
-					errorMessage = fieldErr.Field() + " exceeded maximum characters (32)"
 				}
 				errorTags = append(errorTags, fieldErr.Field())
 				errorMessages = append(errorMessages, errorMessage)
@@ -68,10 +64,16 @@ func (h *AuthHandler) Login(c fiber.Ctx) error {
 		}
 	}
 
-	// hit service layer
+	err = h.service.CreateModule(context.Background(), createModuleRequest)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"message":    "error",
+			"error_type": "server",
+			"error":      "internal server error",
+		})
+	}
 
 	return c.Status(200).JSON(fiber.Map{
 		"message": "ok",
-		"data":    loginRequest,
 	})
 }
