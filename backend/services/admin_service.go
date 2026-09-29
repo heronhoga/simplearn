@@ -2,9 +2,10 @@ package services
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/heronhoga/simplearn/backend/entities"
 	"github.com/heronhoga/simplearn/backend/repositories"
 	"github.com/heronhoga/simplearn/backend/requests"
@@ -20,20 +21,31 @@ func NewAdminService(repository *repositories.AdminRepository) *AdminService {
 	}
 }
 
-func (s *AdminService) CreateModule(context context.Context, newModule requests.CreateModuleRequest) error {
+// string: message; error: system's error
+func (s *AdminService) CreateModule(context context.Context, newModule requests.CreateModuleRequest) (string, error) {
 	module := &entities.Module{
-		Id:        uuid.New().String(),
 		Name:      newModule.Name,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
 
-	err := s.repository.InsertModule(context, module)
+	// find existing module
+	existingModule, err := s.repository.GetModuleByName(context, module.Name)
 	if err != nil {
-		return err
+		fmt.Println(err)
+		return "internal server error", err
 	}
 
-	return nil
+	if existingModule != nil {
+		return "module already exists", errors.New("module already exists")
+	}
+
+	err = s.repository.InsertModule(context, module)
+	if err != nil {
+		return "internal server error", err
+	}
+
+	return "ok", nil
 }
 
 func (s *AdminService) EditModule(context context.Context, newModule requests.EditModuleRequest) error {

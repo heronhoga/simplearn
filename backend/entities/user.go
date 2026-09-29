@@ -2,16 +2,18 @@ package entities
 
 import (
 	"time"
+
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 type User struct {
-	Id             string    `json:"id" bson:"id"`
-	Email          string    `json:"email" bson:"email"`
-	PasswordHashed string    `json:"password_hashed" bson:"password_hashed"`
-	FullName       string    `json:"full_name" bson:"full_name"`
-	Role           string    `json:"role" bson:"role"`
-	Permissions    string    `json:"permissions" bson:"permissions"` // {"profile": "read;write;edit;delete", "question:" "generate;answer;edit;etc" } format
-	CreatedAt      time.Time `json:"created_at" bson:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at" bson:"updated_at"`
-	DeletedAt      time.Time `json:"deleted_at" bson:"deleted_at"`
+	Id             bson.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Email          string        `json:"email" bson:"email"`
+	PasswordHashed string        `json:"password_hashed" bson:"password_hashed"`
+	FullName       string        `json:"full_name" bson:"full_name"`
+	Role           string        `json:"role" bson:"role"`
+	Permissions    string        `json:"permissions" bson:"permissions"` // {"profile": "read;write;edit;delete", "question:" "generate;answer;edit;etc" } format
+	CreatedAt      time.Time     `json:"created_at" bson:"created_at"`
+	UpdatedAt      time.Time     `json:"updated_at" bson:"updated_at"`
+	DeletedAt      time.Time     `json:"deleted_at" bson:"deleted_at"`
 }

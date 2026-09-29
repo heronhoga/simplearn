@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -35,25 +36,43 @@ func (r *AdminRepository) InsertModule(context context.Context, module *entities
 	return nil
 }
 
-func (r *AdminRepository) UpdateModule(ctx context.Context, id string, name string) error {
-	update := bson.M{
-		"$set": bson.M{
-			"name":       name,
-			"updated_at": time.Now(),
-		},
-	}
+func (r *AdminRepository) GetModuleByName(context context.Context, moduleName string) (*entities.Module, error) {
+	var module entities.Module
 
-	filter := bson.M{
-		"id": id,
-	}
+	filter := bson.M{"name": moduleName}
 
-	result, err := r.modules().UpdateOne(ctx, filter, update)
+	err := r.modules().FindOne(context, filter).Decode(&module)
+
 	if err != nil {
-		return err
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &module, nil
+}
+
+func (r *AdminRepository) UpdateModule(ctx context.Context, id string, name string) error {
+	objID, err := bson.ObjectIDFromHex(id)
+	if err != nil {
+		return fmt.Errorf("invalid module id")
+	}
+
+	update := bson.D{
+		{Key: "$set", Value: bson.D{
+			{Key: "name", Value: name},
+			{Key: "updated_at", Value: time.Now()},
+		}},
+	}
+
+	result, err := r.modules().UpdateByID(ctx, objID, update)
+	if err != nil {
+		return fmt.Errorf("internal server error")
 	}
 
 	if result.MatchedCount == 0 {
-		return fmt.Errorf("module with id %s not found", id)
+		return fmt.Errorf("module not found")
 	}
 
 	return nil

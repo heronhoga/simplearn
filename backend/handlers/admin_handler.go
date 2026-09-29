@@ -48,17 +48,17 @@ func (h *AdminHandler) CreateModule(c fiber.Ctx) error {
 		})
 	}
 
-	err = h.service.CreateModule(context.Background(), createModuleRequest)
+	message, err := h.service.CreateModule(context.Background(), createModuleRequest)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"message":    "error",
 			"error_type": "server",
-			"error":      "internal server error",
+			"error":      message,
 		})
 	}
 
 	return c.Status(200).JSON(fiber.Map{
-		"message": "ok",
+		"message": message,
 	})
 }
 
@@ -95,7 +95,7 @@ func (h *AdminHandler) EditModule(c fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{
 			"message":    "error",
 			"error_type": "server",
-			"error":      "internal server error",
+			"error":      err.Error(),
 		})
 	}
 
