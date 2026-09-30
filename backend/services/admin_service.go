@@ -56,3 +56,12 @@ func (s *AdminService) EditModule(context context.Context, newModule requests.Ed
 
 	return nil
 }
+
+func (s *AdminService) DeleteModule(context context.Context, moduleId string) error {
+	err := s.repository.DeleteModule(context, moduleId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

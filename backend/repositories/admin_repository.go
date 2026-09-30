@@ -77,3 +77,27 @@ func (r *AdminRepository) UpdateModule(ctx context.Context, id string, name stri
 
 	return nil
 }
+
+func (r *AdminRepository) DeleteModule(ctx context.Context, moduleId string) error {
+	objID, err := bson.ObjectIDFromHex(moduleId)
+	if err != nil {
+		return fmt.Errorf("invalid module id")
+	}
+
+	update := bson.D{
+		{Key: "$set", Value: bson.D{
+			{Key: "deleted_at", Value: time.Now()},
+		}},
+	}
+
+	result, err := r.modules().UpdateByID(ctx, objID, update)
+	if err != nil {
+		return fmt.Errorf("internal server error")
+	}
+
+	if result.MatchedCount == 0 {
+		return fmt.Errorf("module not found")
+	}
+
+	return nil
+}

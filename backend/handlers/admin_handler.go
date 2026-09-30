@@ -68,8 +68,8 @@ func (h *AdminHandler) EditModule(c fiber.Ctx) error {
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{
 			"message":    "error",
-			"error_type": "server",
-			"error":      "internal server error",
+			"error_type": "client",
+			"error":      "invalid request body",
 		})
 	}
 
@@ -102,4 +102,48 @@ func (h *AdminHandler) EditModule(c fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{
 		"message": "ok",
 	})
+}
+
+func (h *AdminHandler) DeleteModule(c fiber.Ctx) error {
+	var deleteModuleRequest requests.DeleteModuleRequest
+	err := c.Bind().Body(&deleteModuleRequest)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"message":    "error",
+			"error_type": "client",
+			"error":      "invalid request body",
+		})
+	}
+
+	errorTags, errorMessages, errorCode := utils.ValidateAndMapRequest(deleteModuleRequest)
+	switch errorCode {
+	case 500:
+		return c.Status(500).JSON(fiber.Map{
+			"message":    "error",
+			"error_type": "server",
+			"error":      "internal server error",
+		})
+	case 400:
+		return c.Status(400).JSON(fiber.Map{
+			"message":        "error",
+			"error_type":     "validator",
+			"error_tags":     errorTags,
+			"error_messages": errorMessages,
+		})
+	}
+
+	// hit service layer
+	err = h.service.DeleteModule(context.Background(), deleteModuleRequest.Id)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"message":    "error",
+			"error_type": "server",
+			"error":      err.Error(),
+		})
+	}
+
+	return c.Status(200).JSON(fiber.Map{
+		"message": "ok",
+	})
+
 }
