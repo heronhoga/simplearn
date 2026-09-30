@@ -147,3 +147,46 @@ func (h *AdminHandler) DeleteModule(c fiber.Ctx) error {
 	})
 
 }
+
+// permission
+func (h *AdminHandler) CreatePermission(c fiber.Ctx) error {
+	var createPermissionRequest requests.CreatePermissionRequest
+	err := c.Bind().Body(&createPermissionRequest)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"message":    "error",
+			"error_type": "client",
+			"error":      "invalid request body",
+		})
+	}
+
+	errorTags, errorMessages, errorCode := utils.ValidateAndMapRequest(createPermissionRequest)
+	switch errorCode {
+	case 500:
+		return c.Status(500).JSON(fiber.Map{
+			"message":    "error",
+			"error_type": "server",
+			"error":      "internal server error",
+		})
+	case 400:
+		return c.Status(400).JSON(fiber.Map{
+			"message":        "error",
+			"error_type":     "validator",
+			"error_tags":     errorTags,
+			"error_messages": errorMessages,
+		})
+	}
+
+	message, err := h.service.CreatePermission(context.Background(), createPermissionRequest.Action)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"message":    "error",
+			"error_type": "server",
+			"error":      message,
+		})
+	}
+
+	return c.Status(200).JSON(fiber.Map{
+		"message": message,
+	})
+}

@@ -12,6 +12,7 @@ import (
 )
 
 const modulesCollection = "modules"
+const permissionsCollection = "permissions"
 
 type AdminRepository struct {
 	db *mongo.Database
@@ -23,6 +24,7 @@ func NewAdminRepository(db *mongo.Database) *AdminRepository {
 	}
 }
 
+// modules
 func (r *AdminRepository) modules() *mongo.Collection {
 	return r.db.Collection(modulesCollection)
 }
@@ -100,4 +102,35 @@ func (r *AdminRepository) DeleteModule(ctx context.Context, moduleId string) err
 	}
 
 	return nil
+}
+
+// permissions
+func (r *AdminRepository) permissions() *mongo.Collection {
+	return r.db.Collection(permissionsCollection)
+}
+
+func (r *AdminRepository) InsertPermission(context context.Context, permission *entities.Permission) error {
+	_, err := r.permissions().InsertOne(context, permission)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *AdminRepository) GetPermissionByActionName(context context.Context, action string) (*entities.Permission, error) {
+	var permission entities.Permission
+
+	filter := bson.M{"action": action}
+
+	err := r.permissions().FindOne(context, filter).Decode(&permission)
+
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &permission, nil
 }

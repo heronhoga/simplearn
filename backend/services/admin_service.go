@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/heronhoga/simplearn/backend/entities"
@@ -21,6 +20,7 @@ func NewAdminService(repository *repositories.AdminRepository) *AdminService {
 	}
 }
 
+// module
 // string: message; error: system's error
 func (s *AdminService) CreateModule(context context.Context, newModule requests.CreateModuleRequest) (string, error) {
 	module := &entities.Module{
@@ -32,7 +32,6 @@ func (s *AdminService) CreateModule(context context.Context, newModule requests.
 	// find existing module
 	existingModule, err := s.repository.GetModuleByName(context, module.Name)
 	if err != nil {
-		fmt.Println(err)
 		return "internal server error", err
 	}
 
@@ -64,4 +63,32 @@ func (s *AdminService) DeleteModule(context context.Context, moduleId string) er
 	}
 
 	return nil
+}
+
+// permission
+func (s *AdminService) CreatePermission(context context.Context, action string) (string, error) {
+	permission := &entities.Permission{
+		Action:    action,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	// find existing permission
+	existingPermission, err := s.repository.GetPermissionByActionName(context, permission.Action)
+	if err != nil {
+		return "internal server error", err
+	}
+
+	if existingPermission != nil {
+		return "permission already exists", errors.New("permission already exists")
+	}
+
+	// insert new permission
+	err = s.repository.InsertPermission(context, permission)
+	if err != nil {
+		return "internal server error", err
+	}
+
+	return "ok", nil
+
 }
