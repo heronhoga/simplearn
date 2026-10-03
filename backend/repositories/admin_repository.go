@@ -41,7 +41,10 @@ func (r *AdminRepository) InsertModule(context context.Context, module *entities
 func (r *AdminRepository) GetModuleByName(context context.Context, moduleName string) (*entities.Module, error) {
 	var module entities.Module
 
-	filter := bson.M{"name": moduleName}
+	filter := bson.M{
+		"name":       moduleName,
+		"deleted_at": nil,
+	}
 
 	err := r.modules().FindOne(context, filter).Decode(&module)
 
@@ -121,7 +124,10 @@ func (r *AdminRepository) InsertPermission(context context.Context, permission *
 func (r *AdminRepository) GetPermissionByActionName(context context.Context, action string) (*entities.Permission, error) {
 	var permission entities.Permission
 
-	filter := bson.M{"action": action}
+	filter := bson.M{
+		"action":     action,
+		"deleted_at": nil,
+	}
 
 	err := r.permissions().FindOne(context, filter).Decode(&permission)
 

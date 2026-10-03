@@ -26,7 +26,10 @@ func (r *AuthRepository) users() *mongo.Collection {
 // usage
 func (r *AuthRepository) FindExistingUserByEmail(context context.Context, email string) (*entities.User, error) {
 	var existingUser entities.User
-	filter := bson.M{"email": email}
+	filter := bson.M{
+		"email":      email,
+		"deleted_at": nil,
+	}
 
 	err := r.users().FindOne(context, filter).Decode(&existingUser)
 
