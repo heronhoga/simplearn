@@ -12,8 +12,8 @@ type User struct {
 	PasswordHashed string        `json:"password_hashed" bson:"password_hashed"`
 	FullName       string        `json:"full_name" bson:"full_name"`
 	Role           string        `json:"role" bson:"role"`
-	Permissions    string        `json:"permissions" bson:"permissions"` // {"profile": "read;write;edit;delete", "question:" "generate;answer;edit;etc" } format
+	Permissions    string        `json:"permissions" bson:"permissions"`
 	CreatedAt      time.Time     `json:"created_at" bson:"created_at"`
 	UpdatedAt      time.Time     `json:"updated_at" bson:"updated_at"`
-	DeletedAt      time.Time     `json:"deleted_at" bson:"deleted_at"`
+	DeletedAt      *time.Time    `json:"deleted_at,omitempty" bson:"deleted_at,omitempty"`
 }
