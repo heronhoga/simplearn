@@ -48,10 +48,18 @@ func (h *AuthHandler) Login(c fiber.Ctx) error {
 	}
 
 	// hit service layer
+	loginResponse, err := h.service.Login(context.Background(), loginRequest)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"message":    "error",
+			"error_type": "server",
+			"error":      err.Error(),
+		})
+	}
 
 	return c.Status(200).JSON(fiber.Map{
 		"message": "ok",
-		"data":    loginRequest,
+		"data":    loginResponse,
 	})
 }
 

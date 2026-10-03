@@ -9,6 +9,7 @@ import (
 	"github.com/heronhoga/simplearn/backend/repositories"
 	"github.com/heronhoga/simplearn/backend/requests"
 	"github.com/heronhoga/simplearn/backend/responses"
+	"github.com/heronhoga/simplearn/backend/utils"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -58,4 +59,32 @@ func (s *AuthService) Register(context context.Context, newUser requests.Registe
 
 	return responses.RegisterResponse{Message: "register successful, please login using the credentials"}, nil
 
+}
+
+func (s *AuthService) Login(context context.Context, loginUser requests.LoginRequest) (responses.LoginResponse, error) {
+	// find existing user
+	existingUser, err := s.repository.FindExistingUserByEmail(context, loginUser.Email)
+	if err != nil {
+		return responses.LoginResponse{}, errors.New("internal server error")
+	}
+
+	if existingUser == nil {
+		return responses.LoginResponse{}, errors.New("invalid credentials")
+	}
+
+	// compare hashed password
+	err = bcrypt.CompareHashAndPassword([]byte(existingUser.PasswordHashed), []byte(loginUser.Password))
+	if err != nil {
+		return responses.LoginResponse{}, errors.New("invalid credentials")
+	}
+
+	// genereate jwt
+	accessToken, err := utils.GenerateAccessToken(existingUser.Email, existingUser.Id.Hex())
+	if err != nil {
+		return responses.LoginResponse{}, errors.New("internal server error")
+	}
+
+	return responses.LoginResponse{
+		AccessToken: accessToken,
+	}, nil
 }
