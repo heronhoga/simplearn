@@ -23,7 +23,6 @@ func (r *AuthRepository) users() *mongo.Collection {
 	return r.db.Collection(usersCollection)
 }
 
-// usage
 func (r *AuthRepository) FindExistingUserByEmail(context context.Context, email string) (*entities.User, error) {
 	var existingUser entities.User
 	filter := bson.M{
